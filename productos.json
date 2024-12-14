@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1",
+    "title": "iPhone 14",
+    "description": "Último modelo",
+    "code": "IP14",
+    "price": 1000,
+    "status": true,
+    "stock": 50,
+    "category": "smartphones",
+    "thumbnails": [
+      "image1.jpg",
+      "image2.jpg"
+    ]
+  }
+]
