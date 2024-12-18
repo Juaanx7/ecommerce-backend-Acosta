@@ -12,5 +12,19 @@
       "image1.jpg",
       "image2.jpg"
     ]
+  },
+  {
+    "id": "2",
+    "title": "Macbook",
+    "description": "Macbook pro 16 M2",
+    "code": "ABC123",
+    "price": 900,
+    "status": true,
+    "stock": 10,
+    "category": "Laptops",
+    "thumbnails": [
+      "imagen1.jpg",
+      "imagen2.jpg"
+    ]
   }
 ]
