@@ -51,4 +51,17 @@ router.post('/', (req, res) => {
     res.status(201).json({ message: 'Producto creado', product: newProduct });
 });
 
+// Obtener un producto por ID
+router.get('/:pid', (req, res) => {
+    const productId = req.params.pid;
+    const product = products.find(p => p.id === productId);
+
+    if (!product) {
+        return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+
+    res.json(product);
+});
+
+
 module.exports = router;
