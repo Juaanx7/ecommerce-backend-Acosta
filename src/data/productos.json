@@ -1,0 +1,74 @@
+[
+  {
+    "id": "1",
+    "title": "iPhone 14",
+    "description": "Último modelo",
+    "code": "IP14",
+    "price": 1000,
+    "status": true,
+    "stock": 50,
+    "category": "smartphones",
+    "thumbnails": [
+      "https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ]
+  },
+  {
+    "title": "Camara Canon",
+    "price": 20000,
+    "id": "4",
+    "status": true,
+    "stock": 0,
+    "category": "Sin categoría",
+    "thumbnails": [
+      "https://images.unsplash.com/photo-1499696786230-3ebd9d0d6fd8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ]
+  },
+  {
+    "title": "Samsung S20",
+    "price": 350000,
+    "description": "Equipo de alta gama de la marca Samsung",
+    "category": "Smartphones",
+    "stock": 2,
+    "id": "5",
+    "status": true,
+    "thumbnails": [
+      "https://images.unsplash.com/photo-1610792516775-01de03eae630?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ]
+  },
+  {
+    "title": "Macbook Pro",
+    "price": 4700000,
+    "description": "La Macbook que necesitas!",
+    "category": "Macbook",
+    "stock": 4,
+    "id": "6",
+    "status": true,
+    "thumbnails": [
+      "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ]
+  },
+  {
+    "title": "Iphone 11",
+    "price": 430000,
+    "description": "El iPhone 11 ofrece un rendimiento excepcional con su cámara dual de 12 MP, pantalla Liquid Retina de 6.1 pulgadas y el potente chip A13 Bionic, todo en un diseño elegante",
+    "category": "Smartphones",
+    "stock": 7,
+    "id": "7",
+    "status": true,
+    "thumbnails": [
+      "https://images.unsplash.com/photo-1636388446054-b8fced977df1?q=80&w=1982&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ]
+  },
+  {
+    "title": "Camara Sony A6400",
+    "price": 1320000,
+    "description": "La Sony A6400 es una cámara mirrorless con enfoque automático rápido, grabación en 4K y un sensor APS-C de 24.2 MP, ideal para creadores de contenido y fotógrafos",
+    "category": "Camaras",
+    "stock": 2,
+    "id": "8",
+    "status": true,
+    "thumbnails": [
+      "https://images.unsplash.com/photo-1614272660397-487cf606be4a?q=80&w=1925&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ]
+  }
+]

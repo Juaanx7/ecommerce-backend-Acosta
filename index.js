@@ -3,29 +3,49 @@ const { create } = require('express-handlebars');
 const path = require('path');
 const { Server } = require('socket.io');
 const http = require('http');
+const fs = require('fs');
+const filePath = './src/data/productos.json';
 
-// Inicializa Express
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Configuración de Handlebars
 const hbs = create({
   extname: '.handlebars',
+  helpers: {
+    getThumbnail: function(thumbnails) {
+      return thumbnails && thumbnails.length > 0 ? thumbnails[0] : '/path/to/default-image.jpg';
+    }
+  }
 });
 
 app.engine('.handlebars', hbs.engine);
 app.set('view engine', '.handlebars');
-app.set('views', path.join(__dirname, 'src', 'views')); // Carpeta de vistas
-// Configuración de la ruta de los layouts
+app.set('views', path.join(__dirname, 'src', 'views'));
 hbs.layoutPath = path.join(__dirname, 'src', 'views', 'layouts');
+
+
+let products = [];
+
+const loadProducts = () => {
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error("Error al leer el archivo:", err);
+    } else {
+      products = JSON.parse(data);
+    }
+  });
+};
+
+loadProducts();
+
 app.get('/', (req, res) => {
-  res.render('home', { title: 'Página de Inicio' }); // Renderiza home.handlebars
+  res.render('home', { title: 'Página de Inicio', products: products });
 });
 
 app.get('/realTimeProducts', (req, res) => {
-  res.render('realTimeProducts', { title: 'Productos en Tiempo Real' }); // Renderiza realTimeProducts.handlebars
+  res.render('realTimeProducts', { title: 'Productos en Tiempo Real' });
 });
-
 
 // Middlewares
 app.use(express.json());
@@ -41,36 +61,55 @@ app.use('/', viewsRouter);
 app.use('/api/products', productRoutes);
 app.use('/api/carts', cartRoutes);
 
-// Inicializa el servidor HTTP
 const server = http.createServer(app);
 
-// Configuración de Socket.io
 const io = new Server(server);
 
-// Esto permite que el cliente cargue el archivo socket.io.js
 app.use('/socket.io', express.static(path.join(__dirname, 'node_modules', 'socket.io', 'client-dist')));
 
-// Array de productos inicial (esto debe venir de tu lógica o base de datos)
-const products = [];
+// Función para guardar los productos en el archivo JSON
+const saveProductsToFile = () => {
+  fs.writeFile(filePath, JSON.stringify(products, null, 2), (err) => {
+    if (err) {
+      console.error("Error al guardar los productos:", err);
+    }
+  });
+};
 
+// Función para obtener el siguiente ID disponible
+const getNextId = () => {
+  const ids = products.map((product) => parseInt(product.id));
+  const maxId = Math.max(...ids);
+  return maxId + 1;
+};
+
+// Configuración de socket.io
 io.on('connection', (socket) => {
-  console.log('Nuevo cliente conectado');
+  console.log('Cliente conectado');
 
-  // Emitir productos actuales al cliente
   socket.emit('updateProducts', products);
 
-  // Escuchar eventos de creación de productos
   socket.on('newProduct', (product) => {
-    products.push(product); // Agregar el producto al array
-    io.emit('updateProducts', products); // Actualizar a todos los clientes
+    const newProduct = {
+      ...product,
+      id: getNextId().toString(),
+      status: true,
+      stock: product.stock || 0,
+      category: product.category || 'Sin categoría',
+      thumbnails: product.thumbnails || [],
+    };
+
+    products.push(newProduct);
+    saveProductsToFile();
+    io.emit('updateProducts', products);
   });
 
-  // Escuchar eventos de eliminación de productos
   socket.on('deleteProduct', (productId) => {
     const index = products.findIndex((p) => p.id === productId);
     if (index !== -1) {
-      products.splice(index, 1); // Eliminar producto
-      io.emit('updateProducts', products); // Actualizar a todos los clientes
+      products.splice(index, 1);
+      saveProductsToFile();
+      io.emit('updateProducts', products);
     }
   });
 });
