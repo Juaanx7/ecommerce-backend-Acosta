@@ -1,61 +1,62 @@
 const express = require('express');
-const fs = require('fs');
 const router = express.Router();
+const Product = require('../models/product.model');
 
-const filePath = './productos.json';
-let products = [];
+// Obtener todos los productos
+router.get("/", async (req, res) => {
+    try {
+        const { limit = 10, page = 1, sort = 'asc', query = '' } = req.query;
+        const parsedLimit = Number(limit);
+        const parsedPage = Number(page);
 
-const loadProducts = () => {
-    if (fs.existsSync(filePath)) {
-        const data = fs.readFileSync(filePath, 'utf-8');
-        products = JSON.parse(data);
+        // Calculamos el valor de skip para la paginación
+        const skip = (parsedPage - 1) * parsedLimit;
+        const sortOrder = sort === 'asc' ? 1 : -1; // Orden ascendente o descendente por precio
+
+        // Construimos el filtro de búsqueda
+        const filter = {};
+
+        if (query) {
+            if (query.startsWith("category:")) {
+                // Extraer el valor después de "category:"
+                const categoryValue = query.split(":")[1].trim();
+                filter.category = categoryValue;
+            } else {
+                filter.$or = [
+                    { title: { $regex: query, $options: "i" } }
+                ];
+            }
+        }
+
+        // Ejecutamos la búsqueda con los parámetros proporcionados
+        const products = await Product.find(filter)
+            .sort({ price: sortOrder })
+            .skip(skip)
+            .limit(parsedLimit);
+
+        // Obtenemos el total de productos para calcular las páginas
+        const totalProducts = await Product.countDocuments(filter);
+        const totalPages = Math.ceil(totalProducts / parsedLimit);
+
+        // Determinamos si hay páginas previas o siguientes
+        const prevPage = parsedPage > 1 ? parsedPage - 1 : null;
+        const nextPage = parsedPage < totalPages ? parsedPage + 1 : null;
+
+        res.json({
+            status: 'success',
+            payload: products,
+            totalPages,
+            prevPage,
+            nextPage,
+            page: parsedPage,
+            hasPrevPage: prevPage !== null,
+            hasNextPage: nextPage !== null,
+            prevLink: prevPage ? `/api/products?limit=${parsedLimit}&page=${prevPage}&sort=${sort}&query=${query}` : null,
+            nextLink: nextPage ? `/api/products?limit=${parsedLimit}&page=${nextPage}&sort=${sort}&query=${query}` : null,
+        });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
     }
-};
-
-const saveProducts = () => {
-    fs.writeFileSync(filePath, JSON.stringify(products, null, 2), 'utf-8');
-};
-
-loadProducts();
-
-router.get('/', (req, res) => {
-    res.json(products);
 });
-
-router.post('/', (req, res) => {
-    const { title, description, code, price, stock, category, thumbnails } = req.body;
-
-    if (!title || !description || !code || !price || !stock || !category) {
-        return res.status(400).json({ error: 'Faltan campos obligatorios' });
-    }
-
-    const newProduct = {
-        id: (products.length + 1).toString(),
-        title,
-        description,
-        code,
-        price,
-        status: true,
-        stock,
-        category,
-        thumbnails: thumbnails || [],
-    };
-
-    products.push(newProduct);
-    saveProducts();
-    res.status(201).json({ message: 'Producto creado', product: newProduct });
-});
-
-router.get('/:pid', (req, res) => {
-    const productId = req.params.pid;
-    const product = products.find(p => p.id === productId);
-
-    if (!product) {
-        return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
-    res.json(product);
-});
-
 
 module.exports = router;

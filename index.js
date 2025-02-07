@@ -3,8 +3,19 @@ const { create } = require('express-handlebars');
 const path = require('path');
 const { Server } = require('socket.io');
 const http = require('http');
-const fs = require('fs');
-const filePath = './src/data/productos.json';
+const mongoose = require('mongoose');
+const cartRoutes = require('./src/routes/carts');
+
+const MONGO_URI = 'mongodb://localhost:27017/ecommerce'; // Reemplaza con tu conexión real si usas Mongo Atlas
+
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('🟢 Conectado a MongoDB'))
+.catch(err => console.error('🔴 Error al conectar a MongoDB:', err));
+
+const Product = require('./src/models/product.model');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -24,23 +35,15 @@ app.set('view engine', '.handlebars');
 app.set('views', path.join(__dirname, 'src', 'views'));
 hbs.layoutPath = path.join(__dirname, 'src', 'views', 'layouts');
 
-
-let products = [];
-
-const loadProducts = () => {
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error("Error al leer el archivo:", err);
-    } else {
-      products = JSON.parse(data);
-    }
-  });
-};
-
-loadProducts();
-
-app.get('/', (req, res) => {
-  res.render('home', { title: 'Página de Inicio', products: products });
+app.get('/', async (req, res) => {
+  try {
+    const products = await Product.find();
+    console.log(products);
+    res.render('home', { title: 'Página de Inicio', products });
+  } catch (error) {
+    console.error('Error al obtener productos:', error);
+    res.render('home', { title: 'Página de Inicio', products: [] });
+  }
 });
 
 app.get('/realTimeProducts', (req, res) => {
@@ -54,7 +57,6 @@ app.use(express.static(path.join(__dirname, 'src', 'public')));
 
 // Rutas
 const productRoutes = require('./src/routes/products');
-const cartRoutes = require('./src/routes/carts');
 const viewsRouter = require('./src/routes/views.router');
 
 app.use('/', viewsRouter);
@@ -67,49 +69,35 @@ const io = new Server(server);
 
 app.use('/socket.io', express.static(path.join(__dirname, 'node_modules', 'socket.io', 'client-dist')));
 
-// Función para guardar los productos en el archivo JSON
-const saveProductsToFile = () => {
-  fs.writeFile(filePath, JSON.stringify(products, null, 2), (err) => {
-    if (err) {
-      console.error("Error al guardar los productos:", err);
-    }
-  });
-};
-
-// Función para obtener el siguiente ID disponible
-const getNextId = () => {
-  const ids = products.map((product) => parseInt(product.id));
-  const maxId = Math.max(...ids);
-  return maxId + 1;
-};
-
 // Configuración de socket.io
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log('Cliente conectado');
 
+  // Enviar productos al cliente cuando se conecta
+  const products = await Product.find();
   socket.emit('updateProducts', products);
 
-  socket.on('newProduct', (product) => {
-    const newProduct = {
-      ...product,
-      id: getNextId().toString(),
-      status: true,
-      stock: product.stock || 0,
-      category: product.category || 'Sin categoría',
-      thumbnails: product.thumbnails || [],
-    };
+  // Agregar nuevo producto
+  socket.on('newProduct', async (productData) => {
+    try {
+        const newProduct = new Product(productData);
+        await newProduct.save();
 
-    products.push(newProduct);
-    saveProductsToFile();
-    io.emit('updateProducts', products);
-  });
+        const updatedProducts = await Product.find();
+        io.emit('updateProducts', updatedProducts);
+    } catch (error) {
+        console.error('Error al agregar producto:', error);
+    }
+});
 
-  socket.on('deleteProduct', (productId) => {
-    const index = products.findIndex((p) => p.id === productId);
-    if (index !== -1) {
-      products.splice(index, 1);
-      saveProductsToFile();
-      io.emit('updateProducts', products);
+  // Eliminar producto
+  socket.on('deleteProduct', async (productId) => {
+    try {
+      await Product.findByIdAndDelete(productId);
+      const updatedProducts = await Product.find();
+      io.emit('updateProducts', updatedProducts);
+    } catch (error) {
+      console.error('Error al eliminar producto:', error);
     }
   });
 });

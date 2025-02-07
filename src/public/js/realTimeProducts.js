@@ -14,10 +14,10 @@ function updateProducts(products) {
                     <h5 class="card-title">${product.title}</h5>
                     <p class="card-text">${product.description}</p>
                     <p class="card-text"><strong>$${product.price}</strong></p>
-                    <button class="btn btn-danger delete-btn" data-id="${product.id}">Eliminar</button>
+                    <button class="btn btn-danger delete-btn" data-id="${product._id}">Eliminar</button>
                 </div>
             </div>
-        `;        
+        `;
         productsList.appendChild(productCard);
     });
 }
@@ -48,7 +48,6 @@ addProductForm.addEventListener('submit', (event) => {
         description,
         category,
         stock: parseInt(stock),
-        id: Date.now().toString(),
         status: true,
         thumbnails: [thumbnail],
     };
@@ -72,3 +71,27 @@ productsList.addEventListener('click', (event) => {
         socket.emit('deleteProduct', productId);
     }
 });
+
+// Función para agregar al carrito
+function addToCart(productId) {
+    console.log('Producto agregado al carrito: ' + productId);
+    
+    // Enviar la información al servidor (esto se puede hacer usando fetch o AJAX)
+    fetch('/api/carts/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ productId: productId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Carrito actualizado:', data);
+      // Puedes actualizar la vista o mostrar una notificación aquí
+    })
+    .catch(error => {
+      console.error('Error al agregar al carrito:', error);
+    });
+  }
+  
+  

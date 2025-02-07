@@ -1,31 +1,63 @@
+<!-- home.handlebars -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenido a la tienda</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
-    <div class="container my-5">
-        <h1>Lista de Productos</h1>
-        <div class="row">
-            {{#each products}}
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <img src="{{getThumbnail this.thumbnails}}" class="card-img-top" alt="{{this.title}}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.title}}</h5>
-                            <p class="card-text">{{this.description}}</p>
-                            <p class="card-text"><strong>${{this.price}}</strong></p>
-                        </div>
-                    </div>
-                </div>
-            {{/each}}
-        </div>
-    </div>
+  <!-- Contenido principal de la página -->
+  <div class="container mt-4">
+    <h3>Lista de Productos</h3>
 
-    <script src="/js/realTimeProducts.js"></script>
+    <!-- Listado de productos (lo recorreremos con Handlebars) -->
+    <div class="row">
+      {{#each products}}
+        <div class="col-md-4">
+          <div class="card">
+            <!-- Usamos el helper getThumbnail para obtener la primera imagen del array thumbnails -->
+            <img src="{{this.thumbnail}}" class="card-img-top" alt="{{this.title}}" onerror="this.src='https://www.shutterstock.com/image-illustration/image-not-found-grayscale-photo-260nw-2425909941.jpg';">
+            <div class="card-body">
+              <h5 class="card-title">{{this.title}}</h5>
+              <p class="card-text">${{this.price}}</p>
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal{{this._id}}">
+                Ver detalles
+              </button>
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+
+  <!-- Modal para mostrar los detalles del producto -->
+  {{#each products}}
+    <div class="modal fade" id="productModal{{this._id}}" tabindex="-1" aria-labelledby="productModalLabel{{this._id}}" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="productModalLabel{{this._id}}">{{this.title}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <img src="{{getThumbnail this.thumbnails}}" class="img-fluid" alt="{{this.title}}">
+            <p>{{this.description}}</p>
+            <p><strong>Precio:</strong> ${{this.price}}</p>
+            <p><strong>Categoría:</strong> {{this.category}}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" onclick="addToCart('{{this._id}}')">Agregar al carrito</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {{/each}}
+
+  <!-- Script de Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/realTimeProducts"></script>
 </body>
 </html>
