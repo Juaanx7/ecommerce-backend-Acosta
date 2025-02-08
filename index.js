@@ -6,14 +6,16 @@ const http = require('http');
 const mongoose = require('mongoose');
 const cartRoutes = require('./src/routes/carts');
 
-const MONGO_URI = 'mongodb://localhost:27017/ecommerce'; // Reemplaza con tu conexión real si usas Mongo Atlas
+const MONGO_URI = 'mongodb+srv://juaanx7:druaganoto.7@bdcoder.tcghk.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=bdCoder';
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => console.log('🟢 Conectado a MongoDB'))
-.catch(err => console.error('🔴 Error al conectar a MongoDB:', err));
+.then(() => {
+  console.log('🟢 Conectado a MongoDB Atlas')})
+  .catch(err => console.error('🔴 Error al conectar a MongoDB Atlas:', err));
+
 
 const Product = require('./src/models/product.model');
 
@@ -25,9 +27,10 @@ const hbs = create({
   extname: '.handlebars',
   helpers: {
     getThumbnail: function(thumbnails) {
-      return thumbnails && thumbnails.length > 0 ? thumbnails[0] : '/path/to/default-image.jpg';
+      return thumbnails && thumbnails.length > 0 && thumbnails[0].startsWith('http') ? thumbnails[0] : 'https://www.shutterstock.com/image-illustration/image-not-found-grayscale-photo-260nw-2425909941.jpg';
     }
   }
+  
 });
 
 app.engine('.handlebars', hbs.engine);
@@ -47,7 +50,7 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/realTimeProducts', (req, res) => {
-  res.render('realTimeProducts', { title: 'Productos en Tiempo Real' });
+  res.render('realTimeProducts', { title: 'Todos nuestros productos' });
 });
 
 // Middlewares
