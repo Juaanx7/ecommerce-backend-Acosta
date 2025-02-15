@@ -80,7 +80,7 @@ app.use('/socket.io', express.static(path.join(__dirname, 'node_modules', 'socke
 io.on('connection', async (socket) => {
   console.log('Cliente conectado');
 
-  const products = await Product.find();
+  const products = await Product.find().lean();
   socket.emit('updateProducts', products);
 
   // Agregar nuevo producto

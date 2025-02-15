@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const socket = io();
 
-    const productsList = document.getElementById('productsList');
-
     function updateProducts(products) {
         const productsList = document.getElementById('productsList');
         if (productsList) {
@@ -87,30 +85,28 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("El elemento productsList no se encuentra en el DOM.");
     }
 
-// Función para agregar al carrito
-function addToCart(productId) {
-    const cartId = localStorage.getItem("cartId") || "65abcd1234ef56789ghijk"; // Reemplaza con el ID real
+    // Función para agregar al carrito
+    function addToCart(productId) {
+        const cartId = localStorage.getItem("cartId") || "65abcd1234ef56789ghijk"; // Reemplaza con el ID real
 
-    console.log(`Agregando producto ${productId} al carrito ${cartId}`);
+        console.log(`Agregando producto ${productId} al carrito ${cartId}`);
 
-    fetch(`/api/carts/${cartId}/product/${productId}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            alert("Error: " + data.error);
-        } else {
-            alert("Producto agregado al carrito con éxito");
-        }
-    })
-    .catch(error => {
-        console.error("Error al agregar al carrito:", error);
-    });
-}
-
-  
-  
+        fetch(`/api/carts/${cartId}/product/${productId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error: " + data.error);
+            } else {
+                alert("Producto agregado al carrito con éxito");
+            }
+        })
+        .catch(error => {
+            console.error("Error al agregar al carrito:", error);
+        });
+    }
+});
