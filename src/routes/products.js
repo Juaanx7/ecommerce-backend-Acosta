@@ -8,17 +8,14 @@ router.get("/", async (req, res) => {
         const { limit = 10, page = 1, sort = 'asc', query = '' } = req.query;
         const parsedLimit = Number(limit);
         const parsedPage = Number(page);
-
-        // Calculamos el valor de skip para la paginación
         const skip = (parsedPage - 1) * parsedLimit;
-        const sortOrder = sort === 'asc' ? 1 : -1; // Orden ascendente o descendente por precio
+        const sortOrder = sort === 'asc' ? 1 : -1;
 
-        // Construimos el filtro de búsqueda
+        // filtro de búsqueda
         const filter = {};
 
         if (query) {
             if (query.startsWith("category:")) {
-                // Extraer el valor después de "category:"
                 const categoryValue = query.split(":")[1].trim();
                 filter.category = categoryValue;
             } else {
@@ -28,17 +25,17 @@ router.get("/", async (req, res) => {
             }
         }
 
-        // Ejecutamos la búsqueda con los parámetros proporcionados
+        // busqueda con los parametros proporcionados
         const products = await Product.find(filter)
             .sort({ price: sortOrder })
             .skip(skip)
             .limit(parsedLimit);
 
-        // Obtenemos el total de productos para calcular las páginas
+        // total de productos para calcular las paginas
         const totalProducts = await Product.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / parsedLimit);
 
-        // Determinamos si hay páginas previas o siguientes
+        // se verifica si hay paginas previas o siguientes
         const prevPage = parsedPage > 1 ? parsedPage - 1 : null;
         const nextPage = parsedPage < totalPages ? parsedPage + 1 : null;
 

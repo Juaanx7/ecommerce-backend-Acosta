@@ -8,14 +8,10 @@ const cartRoutes = require('./src/routes/carts');
 
 const MONGO_URI = 'mongodb+srv://juaanx7:druaganoto.7@bdcoder.tcghk.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=bdCoder';
 
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => {
-  console.log('🟢 Conectado a MongoDB Atlas')})
+// Conexión a MongoDB Atlas
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('🟢 Conectado a MongoDB Atlas'))
   .catch(err => console.error('🔴 Error al conectar a MongoDB Atlas:', err));
-
 
 const Product = require('./src/models/product.model');
 
@@ -27,7 +23,16 @@ const hbs = create({
   extname: '.handlebars',
   helpers: {
     getThumbnail: function(thumbnails) {
-      return thumbnails && thumbnails.length > 0 && thumbnails[0].startsWith('http') ? thumbnails[0] : 'https://www.shutterstock.com/image-illustration/image-not-found-grayscale-photo-260nw-2425909941.jpg';
+      return thumbnails && thumbnails.length > 0 ? thumbnails[0] : '/path/to/default-image.jpg';
+    },
+    formatPrice: function (price) {
+      return `$${price.toFixed(2)}`;
+    },
+    multiply: function (price, quantity) {
+      return (price * quantity).toFixed(2);
+    },
+    calculateTotal: function (products) {
+      return products.reduce((total, item) => total + item.product.price * item.quantity, 0).toFixed(2);
     }
   }
   
@@ -40,8 +45,7 @@ hbs.layoutPath = path.join(__dirname, 'src', 'views', 'layouts');
 
 app.get('/', async (req, res) => {
   try {
-    const products = await Product.find();
-    console.log(products);
+    const products = await Product.find().lean();
     res.render('home', { title: 'Página de Inicio', products });
   } catch (error) {
     console.error('Error al obtener productos:', error);
@@ -76,7 +80,6 @@ app.use('/socket.io', express.static(path.join(__dirname, 'node_modules', 'socke
 io.on('connection', async (socket) => {
   console.log('Cliente conectado');
 
-  // Enviar productos al cliente cuando se conecta
   const products = await Product.find();
   socket.emit('updateProducts', products);
 
