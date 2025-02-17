@@ -35,6 +35,7 @@ const hbs = create({
       return products.reduce((total, item) => total + item.product.price * item.quantity, 0).toFixed(2);
     }
   }
+  
 });
 
 app.engine('.handlebars', hbs.engine);
@@ -53,7 +54,7 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/realTimeProducts', (req, res) => {
-  res.render('realTimeProducts', { title: 'Productos en Tiempo Real' });
+  res.render('realTimeProducts', { title: 'Todos nuestros productos' });
 });
 
 // Middlewares
