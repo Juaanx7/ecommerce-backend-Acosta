@@ -8,8 +8,10 @@ const router = Router();
 router.post("/", async (req, res) => {
   try {
     const newCart = await Cart.create({ products: [] });
+    console.log('Carrito creado:', newCart);  // Agregamos un log para ver el carrito creado
     res.status(201).json(newCart);
   } catch (error) {
+    console.error('Error al crear el carrito:', error);
     res.status(500).json({ error: "Error al crear el carrito" });
   }
 });
@@ -123,6 +125,4 @@ router.get("/:cid/view", async (req, res) => {
     res.status(500).render("cart", { error: "Error al obtener el carrito" });
   }
 });
-
-
 module.exports = router;
