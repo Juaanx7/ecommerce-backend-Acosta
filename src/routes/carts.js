@@ -1,15 +1,13 @@
 const { Router } = require("express");
 const Cart = require("../models/cart.model");
 const Product = require("../models/product.model");
-
 const router = Router();
 
 // Crear un nuevo carrito
 router.post("/", async (req, res) => {
   try {
     const newCart = await Cart.create({ products: [] });
-    console.log('Carrito creado:', newCart);  // Agregamos un log para ver el carrito creado
-    res.status(201).json(newCart);
+    res.status(201).json({ _id: newCart._id });
   } catch (error) {
     console.error('Error al crear el carrito:', error);
     res.status(500).json({ error: "Error al crear el carrito" });
@@ -23,8 +21,9 @@ router.get("/:cid", async (req, res) => {
     if (!cart) {
       return res.status(404).json({ error: "Carrito no encontrado" });
     }
-    res.json(cart);
+    res.render("cart", { cart });
   } catch (error) {
+    console.error('Error al obtener el carrito para la vista:', error);
     res.status(500).json({ error: "Error al obtener el carrito" });
   }
 });

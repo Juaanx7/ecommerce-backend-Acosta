@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const http = require('http');
 const mongoose = require('mongoose');
 const cartRoutes = require('./src/routes/carts');
+const handlebars = require('handlebars');
 
 const MONGO_URI = 'mongodb+srv://juaanx7:druaganoto.7@bdcoder.tcghk.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=bdCoder';
 
@@ -21,9 +22,23 @@ const hbs = create({
   extname: '.handlebars',
   helpers: {
     getThumbnail: (thumbnails) => thumbnails && thumbnails.length > 0 ? thumbnails[0] : '/path/to/default-image.jpg',
-    formatPrice: (price) => `$${price.toFixed(2)}`,
-    multiply: (price, quantity) => (price * quantity).toFixed(2),
-    calculateTotal: (products) => products.reduce((total, item) => total + item.product.price * item.quantity, 0).toFixed(2)
+    formatPrice: (price) => {
+      const num = Number(price);
+      if (isNaN(num)) return 'Precio no disponible';
+      return `$${num.toFixed(2)}`;
+    },
+    multiply: (price, quantity) => {
+      const num = Number(price) * Number(quantity);
+      return isNaN(num) ? 'Error' : num.toFixed(2);
+    },
+    calculateTotal: (products) => {
+      const total = products.reduce((sum, item) => sum + Number(item.product.price) * Number(item.quantity), 0);
+      return total.toFixed(2);
+    },
+    json: (context) => JSON.stringify(context, null, 2)
+  },
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true
   }
 });
 

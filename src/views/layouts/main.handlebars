@@ -26,9 +26,21 @@
 
   <header>
     <h1>Bienvenido a la tienda</h1>
-    <button onclick="window.location.href='/cart'" class="btn btn-primary">
+    <button onclick="redirectToCart()" class="btn btn-primary">
       Ver Carrito
     </button>
+
+    <script>
+      function redirectToCart() {
+        const cartId = localStorage.getItem('cartId');
+        if (cartId) {
+          window.location.href = `/api/carts/${cartId}/view`;
+        } else {
+          alert('No hay carrito disponible');
+        }
+      }
+    </script>
+
   </header>
 
   <main>
@@ -42,5 +54,6 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/realTimeProducts.js" defer></script>
   <script src="/js/cart.js" defer></script>
+
 </body>
 </html>
