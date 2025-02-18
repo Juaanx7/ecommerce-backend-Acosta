@@ -56,7 +56,7 @@
   <script>
     function removeFromCart(productId) {
       const cartId = localStorage.getItem("cartId");
-      fetch(`/api/carts/${cartId}/product/${productId}`, { method: "DELETE" })
+      fetch(`/api/carts/${cartId}/products/${productId}`, { method: "DELETE" })
         .then(response => response.json())
         .then(data => {
           if (data.error) {
